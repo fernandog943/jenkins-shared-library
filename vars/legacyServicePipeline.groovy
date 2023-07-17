@@ -59,7 +59,7 @@ node {
 	} else if (env.BRANCH_NAME == 'master') {
 		envServer = '-Pktphdi_prod'	
 	}
-}
+}}
 
 
 def functionSetProfile(Map config = [:]) {
@@ -524,4 +524,4 @@ def securityOwasp() {
             unstable('Security failed => Se detectaron vulnerabilidades con puntaje CVSS de nivel 7 o mayor, tener en cuenta que se debe revisar.')
         }
     }
-}}
+}
