@@ -1,6 +1,6 @@
 #!groovy
-
-def call(body) {	
+def call(body) {
+node {	
 
 	jdk = tool name: 'jdk8'
 	env.JAVA_HOME = "${jdk}"
@@ -524,4 +524,4 @@ def securityOwasp() {
             unstable('Security failed => Se detectaron vulnerabilidades con puntaje CVSS de nivel 7 o mayor, tener en cuenta que se debe revisar.')
         }
     }
-}
+}}
