@@ -1,6 +1,6 @@
 #!groovy
 
-node {	
+def call(body) {	
 
 	jdk = tool name: 'jdk8'
 	env.JAVA_HOME = "${jdk}"
