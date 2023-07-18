@@ -1,66 +1,66 @@
 #!groovy
 def call(body) {
-node {	
-
-	jdk = tool name: 'jdk8'
-	env.JAVA_HOME = "${jdk}"
+	node {
 	
-	def mvnHome
-	def envServer
-	def userInput
-	def jiraTicket
-	scmVars = null
-	issueKey = null
-	jobName = env.JOB_NAME
-	branchName = env.BRANCH_NAME	
-	messageOk = 'Finalizado con éxito'
-	messageNok = 'Finalizado con error'
-	envQA = 'Testing'
-	envProd = 'Production'
-	version = null
-	versionTicket = null
-	
-    // valida branch para asignar una variable de entorno
-    if  (env.BRANCH_NAME.contains('feature') || env.BRANCH_NAME.contains('bugfix')) {
-		envServer = '-Pktphdi_dev'
-		issueKey = branchName.split('/')
-		preparation(true)
-		compile(true)
-//		sonarqube_analysis(true)
-//        quality_gate(true)
-		confirm_install(true)
-		build_and_deploy(true, envServer)
-		confirm_advance_to_next_step(true, envQA)
-		create_pull_request(true, 'develop')
-	} else if (env.BRANCH_NAME == 'develop') {		
-		preparation(false)
-		compile(false)
-//		sonarqube_analysis(false)
-//        quality_gate(false)
-		//create_release(false)
-	} else if (env.BRANCH_NAME.contains('release') || env.BRANCH_NAME.contains('hotfix')) {
-		//envServer = '-Pktphdi_test'
-		issueKey = branchName.split('/')
-		envServer = functionSetProfile()
-		preparation(true)
-		compile(true)
-		//sonarqube_analysis(true)
-        //quality_gate(true)		
-		build_and_deploy(true, envServer)
-		assignIssueQA()
-		//securityOwasp()
-		confirm_advance_to_next_step(true, envProd)
-		validAndAssignVersion()
-		envServer = '-Pktphdi_prod'
-		build_and_deploy(true, envServer)
-		publish(true,envServer)
-		create_pull_request(true, 'develop')
-		create_pull_request(true, 'master')	
-	} else if (env.BRANCH_NAME == 'master') {
-		envServer = '-Pktphdi_prod'	
+		jdk = tool name: 'jdk8'
+		env.JAVA_HOME = "${jdk}"
+		
+		def mvnHome
+		def envServer
+		def userInput
+		def jiraTicket
+		scmVars = null
+		issueKey = null
+		jobName = env.JOB_NAME
+		branchName = env.BRANCH_NAME	
+		messageOk = 'Finalizado con éxito'
+		messageNok = 'Finalizado con error'
+		envQA = 'Testing'
+		envProd = 'Production'
+		version = null
+		versionTicket = null
+		
+	    // valida branch para asignar una variable de entorno
+	    if  (env.BRANCH_NAME.contains('feature') || env.BRANCH_NAME.contains('bugfix')) {
+			envServer = '-Pktphdi_dev'
+			issueKey = branchName.split('/')
+			preparation(true)
+			compile(true)
+	//		sonarqube_analysis(true)
+	//        quality_gate(true)
+			confirm_install(true)
+			build_and_deploy(true, envServer)
+			confirm_advance_to_next_step(true, envQA)
+			create_pull_request(true, 'develop')
+		} else if (env.BRANCH_NAME == 'develop') {		
+			preparation(false)
+			compile(false)
+	//		sonarqube_analysis(false)
+	//        quality_gate(false)
+			//create_release(false)
+		} else if (env.BRANCH_NAME.contains('release') || env.BRANCH_NAME.contains('hotfix')) {
+			//envServer = '-Pktphdi_test'
+			issueKey = branchName.split('/')
+			envServer = functionSetProfile()
+			preparation(true)
+			compile(true)
+			//sonarqube_analysis(true)
+	        //quality_gate(true)		
+			build_and_deploy(true, envServer)
+			assignIssueQA()
+			//securityOwasp()
+			confirm_advance_to_next_step(true, envProd)
+			validAndAssignVersion()
+			envServer = '-Pktphdi_prod'
+			build_and_deploy(true, envServer)
+			publish(true,envServer)
+			create_pull_request(true, 'develop')
+			create_pull_request(true, 'master')	
+		} else if (env.BRANCH_NAME == 'master') {
+			envServer = '-Pktphdi_prod'	
+		}
 	}
-}}
-
+}
 
 def functionSetProfile(Map config = [:]) {
 	def choice1
@@ -85,8 +85,6 @@ def changeHibernateValidatorVersion(String pomFilePath, String newVersion) {
     writeFile(file: pomFilePath, text: updatedPomContent)
     echo "Se ha actualizado el valor de <hibernate-validator.version> con la version ${newVersion} en el archivo POM."
 }
-
-
 
 def preparation(flagJira) {
 	stage('Preparation') {
@@ -227,8 +225,6 @@ def build_and_deploy(flagJira, envServer) {
 		}
 	}
 }
-
-
 
 def jmeter_test(flagJira) {
 	stage('Concurrency Test') {
@@ -436,7 +432,8 @@ def assignQA() {
 		result = parseJSON(response.content)	
 		return getUserRole(result.QA)	
 	}	
-}	
+}
+
 def assignQADisplayName() {	
 	def result = null	
 	def project  = issueKey[1].split('-')[0]	
@@ -455,7 +452,8 @@ def getUserRole(url) {
 		result = parseJSON(response.content)	
 		return result.actors[0].actorUser.accountId	
 	}	
-}	
+}
+
 def getUserDisplayName(url) {	
 	def result = null	
 	def response = httpRequest authentication: 'jira-cloud', url: "${url}"	
@@ -463,7 +461,8 @@ def getUserDisplayName(url) {
 		result = parseJSON(response.content)	
 		return result.actors[0].displayName	
 	}	
-}	
+}
+
 def validateTestedStatus() {	
 	def result = null	
 	def addr     = env.jiracloud + "/rest/api/3/issue/${issueKey[1]}"	
@@ -481,7 +480,8 @@ def validateTestedStatus() {
             currentBuild.result = 'FAILURE'
         }
 	}	
-}	
+}
+
 def getStatus(url) {	
 	def result = null	
 	def response = httpRequest authentication: 'jira-cloud', url: "${url}"	
@@ -491,8 +491,7 @@ def getStatus(url) {
 	}	
 }
 
-def parseJSON(text)
-{
+def parseJSON(text) {
     def slurper = new groovy.json.JsonSlurperClassic()
     def result = slurper.parseText(text)
     
