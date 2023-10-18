@@ -51,7 +51,7 @@ def call(body) {
       assignIssueQA()
       //securityOwasp()
       confirm_advance_to_next_step(true, envProd)
-      validAndAssignVersion()
+      //validAndAssignVersion()
       envServer = '-Pktphdi_prod'
       build_and_deploy(true, envServer)
       publish(true, envServer)
@@ -453,7 +453,7 @@ def validateTestedStatus() {
   if (response.status == 200) {
     result = parseJSON(response.content)
     def statusName = getStatus(result.fields.status.self)
-
+    validAndAssignVersion()
     if (!statusName.equals('APROBADO-QA')) {
       error "Tarea Jira debe estar en estado APROBADO-QA. Estado actual: ${statusName}"
       currentBuild.result = 'FAILURE'
