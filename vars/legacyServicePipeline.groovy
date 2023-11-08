@@ -20,6 +20,7 @@ def call(body) {
     envProd = 'Production'
     version = null
     versionTicket = null
+    flagJira = false
 
     // valida branch para asignar una variable de entorno
     if (env.BRANCH_NAME.contains('feature') || env.BRANCH_NAME.contains('bugfix')) {
@@ -43,20 +44,20 @@ def call(body) {
       //envServer = '-Pktphdi_test'
       issueKey = branchName.split('/')
       envServer = functionSetProfile()
-      preparation(true)
-      compile(true)
+      preparation(flagJira)
+      compile(flagJira)
       //sonarqube_analysis(true)
       //quality_gate(true)		
-      build_and_deploy(true, envServer)
+      build_and_deploy(flagJira, envServer)
       assignIssueQA()
       //securityOwasp()
-      confirm_advance_to_next_step(true, envProd)
+      confirm_advance_to_next_step(flagJira, envProd)
       //validAndAssignVersion()
       envServer = '-Pktphdi_prod'
-      build_and_deploy(true, envServer)
-      publish(true, envServer)
-      create_pull_request(true, 'develop')
-      create_pull_request(true, 'master')
+      build_and_deploy(flagJira, envServer)
+      publish(flagJira, envServer)
+      create_pull_request(flagJira, 'develop')
+      create_pull_request(flagJira, 'master')
     } else if (env.BRANCH_NAME == 'master') {
       envServer = '-Pktphdi_prod'
     }
