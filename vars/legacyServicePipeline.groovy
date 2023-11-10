@@ -20,7 +20,7 @@ def call(body) {
     envProd = 'Production'
     version = null
     versionTicket = null
-    flagJira = false
+    flagJira = true
 
     // valida branch para asignar una variable de entorno
     if (env.BRANCH_NAME.contains('feature') || env.BRANCH_NAME.contains('bugfix')) {
@@ -297,7 +297,7 @@ def confirm_advance_to_next_step(flagJira, environment) {
           validateTestedStatus()
         } else if (!response) {
           echo "Rechazado manualmente por el usuario"
-          unstable("Confirm => false");
+          //unstable("Confirm => false");
         }
       }
     } catch (e) {
@@ -305,7 +305,7 @@ def confirm_advance_to_next_step(flagJira, environment) {
         commentIssue('Confirm Advance to ' + environment, e)
         notifyIssue('Confirm Advance to ' + environment, e)
       }
-      unstable("Confirm => no response");
+      //unstable("Confirm => no response");
     }
   }
 }
