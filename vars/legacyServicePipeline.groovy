@@ -46,7 +46,7 @@ def call(body) {
       envServer = functionSetProfile()
       preparation(flagJira)
       compile(flagJira)
-      //sonarqube_analysis(true)
+      sonarqube_analysis(false)
       //quality_gate(true)		
       build_and_deploy(flagJira, envServer)
       assignIssueQA()
@@ -120,8 +120,12 @@ def sonarqube_analysis(flagJira) {
   stage('SonarQube Analysis') {
     try {
       withSonarQubeEnv('SonarQube') {
+        jdk = tool name: 'jdk11' // esta linea se agrega
+        env.JAVA_HOME = "${jdk}" // esta linea se agrega
         sh "'${mvnHome}/bin/mvn' sonar:sonar -Pno-sonar-gen"
       }
+      jdk = tool name: 'jdk8'
+      env.JAVA_HOME = "${jdk}"
     } catch (e) {
       if (flagJira) {
         commentIssue('SonarQube Analysis', e)
