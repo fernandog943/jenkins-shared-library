@@ -127,6 +127,8 @@ def sonarqube_analysis(flagJira) {
       jdk = tool name: 'jdk8'
       env.JAVA_HOME = "${jdk}"
     } catch (e) {
+      jdk = tool name: 'jdk8'
+      env.JAVA_HOME = "${jdk}"
       if (flagJira) {
         commentIssue('SonarQube Analysis', e)
         notifyIssue('SonarQube Analysis', e)
