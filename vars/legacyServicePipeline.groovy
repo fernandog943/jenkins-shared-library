@@ -52,12 +52,13 @@ def call(body) {
       assignIssueQA()
       //securityOwasp()
       confirm_advance_to_next_step(flagJira, envProd)
-      //validAndAssignVersion()
+      create_pull_request(flagJira, 'develop')
+      create_pull_request(flagJira, 'master')
+      validAndAssignVersion()
       envServer = '-Pktphdi_prod'
       build_and_deploy(flagJira, envServer)
       publish(flagJira, envServer)
-      create_pull_request(flagJira, 'develop')
-      create_pull_request(flagJira, 'master')
+      
     } else if (env.BRANCH_NAME == 'master') {
       envServer = '-Pktphdi_prod'
     }
@@ -204,12 +205,17 @@ def build_and_deploy(flagJira, envServer) {
         }
 
       } else if (envServer.contains('prod')) {
-
-        sh "rm -rf  $workspace/target/* "
-        def pomFilePath = 'pom.xml'
-        def newVersion = '5.1.0.Final'
-        changeHibernateValidatorVersion(pomFilePath, newVersion)
-        sh "'${mvnHome}/bin/mvn' clean install ${envServer}"
+        if (versionTicket == null) {
+          error "Tarea Jira no tiene version para generar el artefacto y publicar en el nexus"
+          sh "exit 1"
+          currentBuild.result = 'FAILURE'
+        } else {
+          sh "rm -rf  $workspace/target/* "
+          def pomFilePath = 'pom.xml'
+          def newVersion = '5.1.0.Final'
+          changeHibernateValidatorVersion(pomFilePath, newVersion)
+          sh "'${mvnHome}/bin/mvn' clean install ${envServer}"
+        }
       }
 
     } catch (e) {
@@ -460,15 +466,15 @@ def validateTestedStatus() {
   if (response.status == 200) {
     result = parseJSON(response.content)
     def statusName = getStatus(result.fields.status.self)
-    validAndAssignVersion()
+    // validAndAssignVersion()
     if (!statusName.equals('APROBADO-QA')) {
       error "Tarea Jira debe estar en estado APROBADO-QA. Estado actual: ${statusName}"
       currentBuild.result = 'FAILURE'
-    } else if (versionTicket == null) {
-      error "Tarea Jira no tiene version para la publicar"
-      sh "exit 1"
-      currentBuild.result = 'FAILURE'
-    }
+    } // } else if (versionTicket == null) {
+    //   error "Tarea Jira no tiene version para la publicar"
+    //   sh "exit 1"
+    //   currentBuild.result = 'FAILURE'
+    // }
   }
 }
 
