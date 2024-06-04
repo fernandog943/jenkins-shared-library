@@ -54,6 +54,7 @@ def call(body) {
       confirm_advance_to_next_step(flagJira, envProd)
       create_pull_request(flagJira, 'develop')
       create_pull_request(flagJira, 'master')
+      confirm_generation_artefacts(flagJira)
       validAndAssignVersion()
       envServer = '-Pktphdi_prod'
       build_and_deploy(flagJira, envServer)
@@ -318,6 +319,27 @@ def confirm_advance_to_next_step(flagJira, environment) {
         notifyIssue('Confirm Advance to ' + environment, e)
       }
       //unstable("Confirm => no response");
+    }
+  }
+}
+
+def confirm_generation_artefacts(flagJira) {
+  stage('Confirm artifact generation') {
+    try {
+      timeout(time: 6, unit: 'HOURS') {
+        def response = input(message: '¿Desea avanzar con la generación de artefactos?',
+                             parameters: [booleanParam(defaultValue: true, description: 'Si desea continua, presion el botón', name: 'Yes')] )
+        if (response) {
+          echo "Confirmacion: SI, continua proceso"
+        } else if (!response) {
+          echo "Rechazado manualmente por el usuario"
+          sh "exit 1"
+          currentBuild.result = 'FAILURE'
+        }
+      }
+    } catch (e) {
+      commentIssue('Confirm artifact generation ', e)
+      notifyIssue('Confirm artifact generation ', e)
     }
   }
 }
